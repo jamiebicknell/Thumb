@@ -85,7 +85,7 @@ First make sure your cache directory is writable, then access the script like so
         <td>Createse an image with a height of 250px and the width will be automatically calculated to maintain the aspect ration of the original image</td>
     </tr>
     <tr>
-        <td><800</td>
+        <td>&lt;800</td>
         <td>Creates an image where the width or height does not exceed 800px. For landscape images the width will be 800px and the height will be automatically calculated, and for portrait images the height will be 800px and the width will be automatically calculated.</td>
     </tr>
 </table>
