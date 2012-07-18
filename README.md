@@ -25,7 +25,7 @@ First make sure your cache directory is writable, then access the script like so
     </tr>
     <tr>
         <td>size</td>
-        <td>100, 100x200, 100x, x100, <500</td>
+        <td>100, 100x200, 100x, x100, &lt;500</td>
         <td>100</td>
         <td>Width and/or height must be between 8 and 1500</td>
     </tr>
