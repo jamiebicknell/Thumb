@@ -1,10 +1,10 @@
 <?php
 
 /*
-Title: Thumb.php
-URL: http://github.com/jamiebicknell/Thumb.php
-Author: Jamie Bicknell
-Twitter: @jamiebicknell
+Title:      Thumb.php
+URL:        http://github.com/jamiebicknell/Thumb.php
+Author:     Jamie Bicknell
+Twitter:    @jamiebicknell
 */
 
 define('THUMB_CACHE',           './cache/');    // Path to cache directory (must be writeable)
@@ -21,6 +21,9 @@ $zoom = isset($_GET['zoom']) ? max(0,min(1,$_GET['zoom'])) : 0;
 $align = isset($_GET['align']) ? $_GET['align'] : false;
 $sharpen = isset($_GET['sharpen']) ? max(0,min(100,$_GET['sharpen'])) : 0;
 
+if(!extension_loaded('gd')) {
+    die('GD extension is not installed');
+}
 if(!is_writable(THUMB_CACHE)) {
     die('Cache not writable');
 }
@@ -117,7 +120,7 @@ if(!file_exists($file_name)) {
         case 1:
             $oi = imagecreatefromgif($src);
             imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
-            if($sharpen) {
+            if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
                 imageconvolution($im,$matrix,$divisor,0);
             }
             imagegif($im,$file_name);
@@ -125,7 +128,7 @@ if(!file_exists($file_name)) {
         case 2:
             $oi = imagecreatefromjpeg($src);
             imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
-            if($sharpen) {
+            if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
                 imageconvolution($im,$matrix,$divisor,0);
             }
             imagejpeg($im,$file_name,100);
@@ -135,7 +138,7 @@ if(!file_exists($file_name)) {
             imagesavealpha($im,true);
             $oi = imagecreatefrompng($src);
             imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
-            if($sharpen) {
+            if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
                 imageconvolution($im,$matrix,$divisor,0);
             }
             imagepng($im,$file_name);
