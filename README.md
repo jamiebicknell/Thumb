@@ -4,7 +4,7 @@ A simple, local image only, thumbnail generation script with a file based cache 
 
 ## Example Usage
 
-First make sure your cache directory is writable, then access the script like so:
+Firstly, make sure your cache directory is writable, then access the script like so:
 
     <img src='thumb.php?src=./images/photo.jpg&size=400x300' />
 
