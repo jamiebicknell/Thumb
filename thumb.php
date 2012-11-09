@@ -81,8 +81,8 @@ if(!file_exists($file_name)) {
     $trim_h = ($trim) ? 1 : ($h=='') ? 1 : 0;
     list($w0,$h0,$type) = getimagesize($src);
     if($crop) {
-        $w1 = (($w0/$h0)>($w/$h)) ? ceil($w0*$h/$h0) : $w;
-        $h1 = (($w0/$h0)<($w/$h)) ? ceil($h0*$w/$w0) : $h;
+        $w1 = (($w0/$h0)>($w/$h)) ? floor($w0*$h/$h0) : $w;
+        $h1 = (($w0/$h0)<($w/$h)) ? floor($h0*$w/$w0) : $h;
         if(!$zoom) {
             if($h0<$h||$w0<$w) {
                 $w1 = $w0;
@@ -91,10 +91,12 @@ if(!file_exists($file_name)) {
         }
     }
     else {
-        $w = ($w=='') ? floor(($w0*$h)/$h0) : $w;
-        $h = ($h=='') ? floor(($h0*$w)/$w0) : $h;
-        $w1 = (($w0/$h0)<($w/$h)) ? ceil($w0*$h/$h0) : $w;
-        $h1 = (($w0/$h0)>($w/$h)) ? ceil($h0*$w/$w0) : $h;
+        $w = ($w=='') ? ($w0*$h)/$h0 : $w;
+        $h = ($h=='') ? ($h0*$w)/$w0 : $h;
+        $w1 = (($w0/$h0)<($w/$h)) ? floor($w0*$h/$h0) : floor($w);
+        $h1 = (($w0/$h0)>($w/$h)) ? floor($h0*$w/$w0) : floor($h);
+        $w = floor($w);
+        $h = floor($h);
         if(!$zoom) {
             if($h0<$h&&$w0<$w) {
                 $w1 = $w0;
