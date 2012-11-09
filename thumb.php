@@ -77,6 +77,8 @@ if(!file_exists($file_name)) {
         $crop = 0;
         $trim = 1;
     }
+    $trim_w = ($trim) ? 1 : ($w=='') ? 1 : 0;
+    $trim_h = ($trim) ? 1 : ($h=='') ? 1 : 0;
     list($w0,$h0,$type) = getimagesize($src);
     if($crop) {
         $w1 = (($w0/$h0)>($w/$h)) ? ceil($w0*$h/$h0) : $w;
@@ -100,10 +102,8 @@ if(!file_exists($file_name)) {
             }
         }
     }
-    if($trim) {
-        $w = (($w0/$h0)>($w/$h)) ? min($w,$w1) : $w1;
-        $h = (($w0/$h0)<($w/$h)) ? min($h,$h1) : $h1;
-    }
+    $w = ($trim_w) ? (($w0/$h0)>($w/$h)) ? min($w,$w1) : $w1 : $w;
+    $h = ($trim_h) ? (($w0/$h0)<($w/$h)) ? min($h,$h1) : $h1 : $h;
     if($sharpen) {
         $matrix = array (
             array(-1,-1,-1),
