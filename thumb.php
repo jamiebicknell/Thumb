@@ -138,10 +138,13 @@ if(!file_exists($file_name)) {
         case 3:
             imagefill($im,0,0,imagecolorallocatealpha($im,0,0,0,127));
             imagesavealpha($im,true);
+            imagealphablending($im,false);
             $oi = imagecreatefrompng($src);
             imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
             if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
+                $fix = imagecolorat($im,0,0);
                 imageconvolution($im,$matrix,$divisor,0);
+                imagesetpixel($im,0,0,$fix);
             }
             imagepng($im,$file_name);
             break;
