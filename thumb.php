@@ -12,6 +12,7 @@ define('THUMB_CACHE_AGE',       86400);         // Duration of cached files in s
 define('THUMB_BROWSER_CACHE',   true);          // Browser cache true or false
 define('SHARPEN_MIN',           12);            // Minimum sharpen value
 define('SHARPEN_MAX',           28);            // Maximum sharpen value
+define('ADJUST_ORIENTATION',    false);         // Auto adjust orientation for JPEG true or false
 
 $src = isset($_GET['src']) ? $_GET['src'] : false;
 $size = isset($_GET['size']) ? str_replace(array('<','x'),'',$_GET['size'])!='' ? $_GET['size'] : 100 : 100;
@@ -62,6 +63,64 @@ if(THUMB_BROWSER_CACHE&&(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])||isset($_SERV
 }
 
 if(!file_exists($file_name)) {
+    list($w0,$h0,$type) = getimagesize($src);
+    switch($type) {
+        case 1:
+            $oi = imagecreatefromgif($src);
+            break;
+        case 2:
+            $oi = imagecreatefromjpeg($src);
+            break;
+        case 3:
+            $oi = imagecreatefrompng($src);
+            break;
+    }
+    if(ADJUST_ORIENTATION&&$type==2) {
+        $exif = exif_read_data($src,EXIF);
+        if(isset($exif['Orientation'])) {
+            $degree = 0;
+            $mirror = false;
+            switch($exif['Orientation']) {
+                case 2:
+                    $mirror = true;
+                    break;
+                case 3:
+                    $degree = 180;
+                    break;
+                case 4:
+                    $degree = 180;
+                    $mirror = true;
+                    break;
+                case 5:
+                    $degree = 270;
+                    $mirror = true;
+                    $w0 ^= $h0 ^= $w0 ^= $h0;
+                    break;
+                case 6:
+                    $degree = 270;
+                    $w0 ^= $h0 ^= $w0 ^= $h0;
+                    break;
+                case 7:
+                    $degree = 90;
+                    $mirror = true;
+                    $w0 ^= $h0 ^= $w0 ^= $h0;
+                    break;
+                case 8:
+                    $degree = 90;
+                    $w0 ^= $h0 ^= $w0 ^= $h0;
+                    break;
+            }
+            if($degree>0) {
+                $oi = imagerotate($oi,$degree,0);
+            }
+            if($mirror) {
+                $nm = $oi;
+                $oi = imagecreatetruecolor($w0,$h0);
+                imagecopyresampled($oi,$nm,0,0,$w0-1,0,$w0,$h0,-$w0,$h0);
+                imagedestroy($nm);
+            }
+        }
+    }
     list($w,$h) = explode('x',str_replace('<','',$size));
     $w = ($w!='') ? floor(max(8,min(1500,$w))) : '';
     $h = ($h!='') ? floor(max(8,min(1500,$h))) : '';
@@ -79,7 +138,6 @@ if(!file_exists($file_name)) {
     }
     $trim_w = ($trim) ? 1 : ($w=='') ? 1 : 0;
     $trim_h = ($trim) ? 1 : ($h=='') ? 1 : 0;
-    list($w0,$h0,$type) = getimagesize($src);
     if($crop) {
         $w1 = (($w0/$h0)>($w/$h)) ? floor($w0*$h/$h0) : $w;
         $h1 = (($w0/$h0)<($w/$h)) ? floor($h0*$w/$w0) : $h;
@@ -120,7 +178,6 @@ if(!file_exists($file_name)) {
     imagefill($im,0,0,$bg);
     switch($type) {
         case 1:
-            $oi = imagecreatefromgif($src);
             imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
             if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
                 imageconvolution($im,$matrix,$divisor,0);
@@ -128,7 +185,6 @@ if(!file_exists($file_name)) {
             imagegif($im,$file_name);
             break;
         case 2:
-            $oi = imagecreatefromjpeg($src);
             imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
             if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
                 imageconvolution($im,$matrix,$divisor,0);
@@ -139,7 +195,6 @@ if(!file_exists($file_name)) {
             imagefill($im,0,0,imagecolorallocatealpha($im,0,0,0,127));
             imagesavealpha($im,true);
             imagealphablending($im,false);
-            $oi = imagecreatefrompng($src);
             imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
             if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
                 $fix = imagecolorat($im,0,0);
