@@ -1,0 +1,16 @@
+{
+    "name": "jamiebicknell/Thumb.php",
+    "description": "A simple, local image only, thumbnail generation script",
+    "keywords": ["thumbnail","php","gd"],
+    "homepage": "http://github.com/jamiebicknell/Thumb.php",
+    "license": "Zlib",
+    "authors": [
+        {
+            "name": "Jamie Bicknell",
+            "homepage": "http://www.tuesdayscoming.com"
+        }
+    ],
+    "require": {
+        "php": ">=4.3.2"
+    }
+}
