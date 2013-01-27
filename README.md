@@ -91,3 +91,11 @@ Firstly, make sure your cache directory is writable, then access the script like
         <td>Creates an image where the width or height does not exceed 800px. For landscape images the width will be 800px and the height will be automatically calculated, and for portrait images the height will be 800px and the width will be automatically calculated.</td>
     </tr>
 </table>
+
+## Automatic Orientation Correction
+
+If you're dealing with images straight from a camera, some may contain [EXIF](http://en.wikipedia.org/wiki/Exchangeable_image_file_format) data which specifies the original orientation the image should be viewed at.
+
+To enable this feature, change the constant `ADJUST_ORIENTATION` to `true`.
+
+More information, and an in depth analysis of EXIF Orientation can be found [in this article](http://en.wikipedia.org/wiki/Exchangeable_image_file_format) written by [@recurser](http://www.twitter.com/recurser)
