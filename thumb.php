@@ -28,8 +28,11 @@ if(!extension_loaded('gd')) {
 if(!is_writable(THUMB_CACHE)) {
     die('Cache not writable');
 }
-if(parse_url($src,PHP_URL_SCHEME)||!file_exists($src)||!in_array(strtolower(substr(strrchr($src,'.'),1)),array('gif','jpg','jpeg','png'))) {
+if(parse_url($src,PHP_URL_SCHEME)||!file_exists($src)) {
     die('File cannot be found');
+}
+if(!in_array(strtolower(substr(strrchr($src,'.'),1)),array('gif','jpg','jpeg','png'))) {
+    die('File is not an image');
 }
 
 $file_salt = 'v1.0';
@@ -37,7 +40,7 @@ $file_size = filesize($src);
 $file_time = filemtime($src);
 $file_date = gmdate('D, d M Y H:i:s T',$file_time);
 $file_type = strtolower(substr(strrchr($src,'.'),1));
-$file_hash = md5($file_salt . $_SERVER['QUERY_STRING'] . $file_time);
+$file_hash = md5($file_salt . ($src.$size.$crop.$trim.$zoom.$align.$sharpen) . $file_time);
 $file_name = THUMB_CACHE . $file_hash . '.img.txt';
 
 if(!file_exists(THUMB_CACHE . 'index.html')) {
