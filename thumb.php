@@ -21,6 +21,32 @@ $trim = isset($_GET['trim']) ? max(0,min(1,$_GET['trim'])) : 0;
 $zoom = isset($_GET['zoom']) ? max(0,min(1,$_GET['zoom'])) : 0;
 $align = isset($_GET['align']) ? $_GET['align'] : false;
 $sharpen = isset($_GET['sharpen']) ? max(0,min(100,$_GET['sharpen'])) : 0;
+$path = parse_url($src);
+
+if(isset($path['scheme'])) {
+    $base = parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+    if(preg_replace('/^www\./i','',$base['host'])==preg_replace('/^www\./i','',$path['host'])) {
+        $base = explode('/',preg_replace('/\/+/','/',$base['path']));
+        $path = explode('/',preg_replace('/\/+/','/',$path['path']));
+        $temp = $path;
+        $part = count($base);
+        foreach($base as $k => $v) {
+            if($v==$path[$k]) {
+                array_shift($temp);
+            }
+            else {
+                if($part-$k>1) {
+                    $temp = array_pad($temp,0-(count($temp)+($part-$k)-1),'..');
+                    break;
+                }
+                else {
+                    $temp[0] = './' . $temp[0];
+                }
+            }
+        }
+        $src = implode('/',$temp);
+    }
+}
 
 if(!extension_loaded('gd')) {
     die('GD extension is not installed');
@@ -28,7 +54,7 @@ if(!extension_loaded('gd')) {
 if(!is_writable(THUMB_CACHE)) {
     die('Cache not writable');
 }
-if(parse_url($src,PHP_URL_SCHEME)||!file_exists($src)) {
+if(isset($path['scheme'])||!file_exists($src)) {
     die('File cannot be found');
 }
 if(!in_array(strtolower(substr(strrchr($src,'.'),1)),array('gif','jpg','jpeg','png'))) {
