@@ -72,17 +72,22 @@ $file_name = THUMB_CACHE . $file_hash . '.img.txt';
 if(!file_exists(THUMB_CACHE . 'index.html')) {
     touch(THUMB_CACHE . 'index.html');
 }
-if(time()-THUMB_CACHE_AGE>filemtime(THUMB_CACHE . 'index.html')) {
-    $files = glob(THUMB_CACHE . '*.img.txt');
-    if(is_array($files)&&count($files)>0) {
-        foreach($files as $file) {
-            if(time()-THUMB_CACHE_AGE>filemtime($file)) {
-                unlink($file);
+$fp = fopen(THUMB_CACHE . 'index.html','r');
+if(flock($fp,LOCK_EX)) {
+    if(time()-THUMB_CACHE_AGE>filemtime(THUMB_CACHE . 'index.html')) {
+        $files = glob(THUMB_CACHE . '*.img.txt');
+        if(is_array($files)&&count($files)>0) {
+            foreach($files as $file) {
+                if(time()-THUMB_CACHE_AGE>filemtime($file)) {
+                    unlink($file);
+                }
             }
         }
+        touch(THUMB_CACHE . 'index.html');
     }
-    touch(THUMB_CACHE . 'index.html');
+    flock($fp,LOCK_UN);
 }
+fclose($fp);
 
 if(THUMB_BROWSER_CACHE&&(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])||isset($_SERVER['HTTP_IF_NONE_MATCH']))) {
     if($_SERVER['HTTP_IF_MODIFIED_SINCE']==$file_date&&$_SERVER['HTTP_IF_NONE_MATCH']==$file_hash) {
