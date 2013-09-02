@@ -61,6 +61,12 @@ Firstly, make sure your cache directory is writable, then access the script like
         <td>0</td>
         <td>Percentage strength of the image sharpness, based on the percentage midpoint of 12 (strong) and 28 (weak)</td>
     </tr>
+    <tr>
+        <td>gray</td>
+        <td>0 - 1</td>
+        <td>0</td>
+        <td>0 = Displays image as normal<br />1 = Converts image to grayscale</td>
+    </tr>
 </table>
 
 ## Size Parameter

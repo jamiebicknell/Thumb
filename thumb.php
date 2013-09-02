@@ -21,6 +21,7 @@ $trim = isset($_GET['trim']) ? max(0,min(1,$_GET['trim'])) : 0;
 $zoom = isset($_GET['zoom']) ? max(0,min(1,$_GET['zoom'])) : 0;
 $align = isset($_GET['align']) ? $_GET['align'] : false;
 $sharpen = isset($_GET['sharpen']) ? max(0,min(100,$_GET['sharpen'])) : 0;
+$gray = isset($_GET['gray']) ? max(0,min(1,$_GET['gray'])) : 0;
 $path = parse_url($src);
 
 if(isset($path['scheme'])) {
@@ -66,7 +67,7 @@ $file_size = filesize($src);
 $file_time = filemtime($src);
 $file_date = gmdate('D, d M Y H:i:s T',$file_time);
 $file_type = strtolower(substr(strrchr($src,'.'),1));
-$file_hash = md5($file_salt . ($src.$size.$crop.$trim.$zoom.$align.$sharpen) . $file_time);
+$file_hash = md5($file_salt . ($src.$size.$crop.$trim.$zoom.$align.$sharpen.$gray) . $file_time);
 $file_name = THUMB_CACHE . $file_hash . '.img.txt';
 
 if(!file_exists(THUMB_CACHE . 'index.html')) {
@@ -219,12 +220,18 @@ if(!file_exists($file_name)) {
             if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
                 imageconvolution($im,$matrix,$divisor,0);
             }
+            if($gray) {
+                imagefilter($im,IMG_FILTER_GRAYSCALE);
+            }
             imagegif($im,$file_name);
             break;
         case 2:
             imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
             if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
                 imageconvolution($im,$matrix,$divisor,0);
+            }
+            if($gray) {
+                imagefilter($im,IMG_FILTER_GRAYSCALE);
             }
             imagejpeg($im,$file_name,100);
             break;
@@ -237,6 +244,9 @@ if(!file_exists($file_name)) {
                 $fix = imagecolorat($im,0,0);
                 imageconvolution($im,$matrix,$divisor,0);
                 imagesetpixel($im,0,0,$fix);
+            }
+            if($gray) {
+                imagefilter($im,IMG_FILTER_GRAYSCALE);
             }
             imagepng($im,$file_name);
             break;
