@@ -105,7 +105,10 @@ if(!file_exists($file_name)) {
             break;
     }
     if(ADJUST_ORIENTATION&&$type==2) {
-        $exif = exif_read_data($src,EXIF);
+        // I know supressing errors is bad, but calling exif_read_data on invalid
+        // or corrupted data returns a fatal error and there's no way to validate
+        // the EXIF data before calling the function.
+        $exif = @exif_read_data($src,EXIF);
         if(isset($exif['Orientation'])) {
             $degree = 0;
             $mirror = false;
