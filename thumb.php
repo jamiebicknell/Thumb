@@ -241,7 +241,17 @@ header('Content-Type: image/' . $file_type);
 header('Content-Length: ' . filesize($file_name));
 header('Last-Modified: ' . $file_date);
 header('ETag: ' . $file_hash);
-header('Cache-Control: public');
+header('Accept-Ranges: none');
+if(THUMB_BROWSER_CACHE) {
+    header('Cache-Control: max-age=604800, must-revalidate');
+    header('Expires: ' . gmdate('D, d M Y H:i:s T',strtotime('+7 days')));
+}
+else {
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Expires: ' . gmdate('D, d M Y H:i:s T'));
+    header('Pragma: no-cache');
+}
+
 readfile($file_name);
 
 ?>
