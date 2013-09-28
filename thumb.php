@@ -271,5 +271,3 @@ else {
 }
 
 readfile($file_name);
-
-?>
