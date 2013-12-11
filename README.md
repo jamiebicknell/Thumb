@@ -65,7 +65,13 @@ Firstly, make sure your cache directory is writable, then access the script like
         <td>gray</td>
         <td>0 - 1</td>
         <td>0</td>
-        <td>0 = Displays image as normal<br />1 = Converts image to grayscale</td>
+        <td>0 = Displays resized image as normal<br />1 = Converts image to grayscale</td>
+    </tr>
+    <tr>
+        <td>ignore</td>
+        <td>0 - 1</td>
+        <td>0</td>
+        <td>0 = Displays resized image as normal<br />1 = Displays original image file so that the animation is present</td>
     </tr>
 </table>
 

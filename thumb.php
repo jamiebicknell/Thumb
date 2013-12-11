@@ -22,6 +22,7 @@ $zoom = isset($_GET['zoom']) ? max(0,min(1,$_GET['zoom'])) : 0;
 $align = isset($_GET['align']) ? $_GET['align'] : false;
 $sharpen = isset($_GET['sharpen']) ? max(0,min(100,$_GET['sharpen'])) : 0;
 $gray = isset($_GET['gray']) ? max(0,min(1,$_GET['gray'])) : 0;
+$ignore = isset($_GET['ignore']) ? max(0,min(1,$_GET['ignore'])) : 0;
 $path = parse_url($src);
 
 if(isset($path['scheme'])) {
@@ -67,7 +68,7 @@ $file_size = filesize($src);
 $file_time = filemtime($src);
 $file_date = gmdate('D, d M Y H:i:s T',$file_time);
 $file_type = strtolower(substr(strrchr($src,'.'),1));
-$file_hash = md5($file_salt . ($src.$size.$crop.$trim.$zoom.$align.$sharpen.$gray) . $file_time);
+$file_hash = md5($file_salt . ($src.$size.$crop.$trim.$zoom.$align.$sharpen.$gray.$ignore) . $file_time);
 $file_name = THUMB_CACHE . $file_hash . '.img.txt';
 
 if(!file_exists(THUMB_CACHE . 'index.html')) {
@@ -99,17 +100,27 @@ if(THUMB_BROWSER_CACHE&&(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])||isset($_SERV
 
 if(!file_exists($file_name)) {
     list($w0,$h0,$type) = getimagesize($src);
-    switch($type) {
-        case 1:
-            $oi = imagecreatefromgif($src);
-            break;
-        case 2:
-            $oi = imagecreatefromjpeg($src);
-            break;
-        case 3:
-            $oi = imagecreatefrompng($src);
-            break;
+    $data = file_get_contents($src);
+    if($ignore&&$type==1) {
+        if(preg_match('/\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)/s',$data)) {
+            header('Content-Type: image/gif');
+            header('Content-Length: ' . $file_size);
+            header('Last-Modified: ' . $file_date);
+            header('ETag: ' . $file_hash);
+            header('Accept-Ranges: none');
+            if(THUMB_BROWSER_CACHE) {
+                header('Cache-Control: max-age=604800, must-revalidate');
+                header('Expires: ' . gmdate('D, d M Y H:i:s T',strtotime('+7 days')));
+            }
+            else {
+                header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+                header('Expires: ' . gmdate('D, d M Y H:i:s T'));
+                header('Pragma: no-cache');
+            }
+            die($data);
+        }
     }
+    $oi = imagecreatefromstring($data);
     if(ADJUST_ORIENTATION&&$type==2) {
         // I know supressing errors is bad, but calling exif_read_data on invalid
         // or corrupted data returns a fatal error and there's no way to validate
