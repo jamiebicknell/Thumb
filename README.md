@@ -71,7 +71,7 @@ Firstly, make sure your cache directory is writable, then access the script like
         <td>ignore</td>
         <td>0 - 1</td>
         <td>0</td>
-        <td>0 = Displays resized image as normal<br />1 = Displays original image file so that the animation is present</td>
+        <td>0 = Displays resized image as normal<br />1 = Displays original image file with the animation present</td>
     </tr>
 </table>
 
