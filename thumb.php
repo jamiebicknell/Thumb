@@ -26,7 +26,7 @@ $ignore = isset($_GET['ignore']) ? max(0,min(1,$_GET['ignore'])) : 0;
 $path = parse_url($src);
 
 if(isset($path['scheme'])) {
-    $base = parse_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+    $base = parse_url('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
     if(preg_replace('/^www\./i','',$base['host'])==preg_replace('/^www\./i','',$path['host'])) {
         $base = explode('/',preg_replace('/\/+/','/',$base['path']));
         $path = explode('/',preg_replace('/\/+/','/',$path['path']));
