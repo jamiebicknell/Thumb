@@ -110,4 +110,4 @@ If you're dealing with images straight from a camera, some may contain [EXIF](ht
 
 To enable this feature, change the constant `ADJUST_ORIENTATION` to `true`.
 
-More information, and an in depth analysis of EXIF Orientation can be found [in this article](http://en.wikipedia.org/wiki/Exchangeable_image_file_format) written by [@recurser](http://www.twitter.com/recurser)
+More information, and an in depth analysis of EXIF Orientation can be found [in this article](http://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/) written by @[daveperrett](http://www.twitter.com/daveperrett)
