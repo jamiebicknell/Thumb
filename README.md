@@ -111,3 +111,7 @@ If you're dealing with images straight from a camera, some may contain [EXIF](ht
 To enable this feature, change the constant `ADJUST_ORIENTATION` to `true`.
 
 More information, and an in depth analysis of EXIF Orientation can be found [in this article](http://www.daveperrett.com/articles/2012/07/28/exif-orientation-handling-is-a-ghetto/) written by @[daveperrett](http://www.twitter.com/daveperrett)
+
+##License
+
+Thumb.php is licensed under the [MIT license](http://opensource.org/licenses/MIT), see [LICENSE.md](https://github.com/jamiebicknell/Thumb.php/blob/master/LICENSE.md) for details.

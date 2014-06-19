@@ -3,7 +3,7 @@
     "description": "A simple, local image only, thumbnail generation script",
     "keywords": ["thumbnail","php","gd"],
     "homepage": "http://github.com/jamiebicknell/Thumb.php",
-    "license": "Zlib",
+    "license": "MIT",
     "authors": [
         {
             "name": "Jamie Bicknell",
