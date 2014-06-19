@@ -15,104 +15,101 @@ define('SHARPEN_MAX',           28);            // Maximum sharpen value
 define('ADJUST_ORIENTATION',    true);          // Auto adjust orientation for JPEG true or false
 
 $src = isset($_GET['src']) ? $_GET['src'] : false;
-$size = isset($_GET['size']) ? str_replace(array('<','x'),'',$_GET['size'])!='' ? $_GET['size'] : 100 : 100;
-$crop = isset($_GET['crop']) ? max(0,min(1,$_GET['crop'])) : 1;
-$trim = isset($_GET['trim']) ? max(0,min(1,$_GET['trim'])) : 0;
-$zoom = isset($_GET['zoom']) ? max(0,min(1,$_GET['zoom'])) : 0;
+$size = isset($_GET['size']) ? str_replace(array('<', 'x'), '', $_GET['size']) != '' ? $_GET['size'] : 100 : 100;
+$crop = isset($_GET['crop']) ? max(0, min(1, $_GET['crop'])) : 1;
+$trim = isset($_GET['trim']) ? max(0, min(1, $_GET['trim'])) : 0;
+$zoom = isset($_GET['zoom']) ? max(0, min(1, $_GET['zoom'])) : 0;
 $align = isset($_GET['align']) ? $_GET['align'] : false;
-$sharpen = isset($_GET['sharpen']) ? max(0,min(100,$_GET['sharpen'])) : 0;
-$gray = isset($_GET['gray']) ? max(0,min(1,$_GET['gray'])) : 0;
-$ignore = isset($_GET['ignore']) ? max(0,min(1,$_GET['ignore'])) : 0;
+$sharpen = isset($_GET['sharpen']) ? max(0, min(100, $_GET['sharpen'])) : 0;
+$gray = isset($_GET['gray']) ? max(0, min(1, $_GET['gray'])) : 0;
+$ignore = isset($_GET['ignore']) ? max(0, min(1, $_GET['ignore'])) : 0;
 $path = parse_url($src);
 
-if(isset($path['scheme'])) {
-    $base = parse_url('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-    if(preg_replace('/^www\./i','',$base['host'])==preg_replace('/^www\./i','',$path['host'])) {
-        $base = explode('/',preg_replace('/\/+/','/',$base['path']));
-        $path = explode('/',preg_replace('/\/+/','/',$path['path']));
+if (isset($path['scheme'])) {
+    $base = parse_url('http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
+    if (preg_replace('/^www\./i', '', $base['host']) == preg_replace('/^www\./i', '', $path['host'])) {
+        $base = explode('/', preg_replace('/\/+/', '/', $base['path']));
+        $path = explode('/', preg_replace('/\/+/', '/', $path['path']));
         $temp = $path;
         $part = count($base);
-        foreach($base as $k => $v) {
-            if($v==$path[$k]) {
+        foreach ($base as $k => $v) {
+            if ($v == $path[$k]) {
                 array_shift($temp);
-            }
-            else {
-                if($part-$k>1) {
-                    $temp = array_pad($temp,0-(count($temp)+($part-$k)-1),'..');
+            } else {
+                if ($part - $k > 1) {
+                    $temp = array_pad($temp, 0 - (count($temp) + ($part - $k) - 1), '..');
                     break;
-                }
-                else {
+                } else {
                     $temp[0] = './' . $temp[0];
                 }
             }
         }
-        $src = implode('/',$temp);
+        $src = implode('/', $temp);
     }
 }
 
-if(!extension_loaded('gd')) {
+if (!extension_loaded('gd')) {
     die('GD extension is not installed');
 }
-if(!is_writable(THUMB_CACHE)) {
+if (!is_writable(THUMB_CACHE)) {
     die('Cache not writable');
 }
-if(isset($path['scheme'])||!file_exists($src)) {
+if (isset($path['scheme']) || !file_exists($src)) {
     die('File cannot be found');
 }
-if(!in_array(strtolower(substr(strrchr($src,'.'),1)),array('gif','jpg','jpeg','png'))) {
+if (!in_array(strtolower(substr(strrchr($src, '.'), 1)), array('gif', 'jpg', 'jpeg', 'png'))) {
     die('File is not an image');
 }
 
-$file_salt = 'v1.0';
+$file_salt = 'v1.0.0';
 $file_size = filesize($src);
 $file_time = filemtime($src);
-$file_date = gmdate('D, d M Y H:i:s T',$file_time);
-$file_type = strtolower(substr(strrchr($src,'.'),1));
+$file_date = gmdate('D, d M Y H:i:s T', $file_time);
+$file_type = strtolower(substr(strrchr($src, '.'), 1));
 $file_hash = md5($file_salt . ($src.$size.$crop.$trim.$zoom.$align.$sharpen.$gray.$ignore) . $file_time);
 $file_name = THUMB_CACHE . $file_hash . '.img.txt';
 
-if(!file_exists(THUMB_CACHE . 'index.html')) {
+if (!file_exists(THUMB_CACHE . 'index.html')) {
     touch(THUMB_CACHE . 'index.html');
 }
-$fp = fopen(THUMB_CACHE . 'index.html','r');
-if(flock($fp,LOCK_EX)) {
-    if(time()-THUMB_CACHE_AGE>filemtime(THUMB_CACHE . 'index.html')) {
+$fp = fopen(THUMB_CACHE . 'index.html', 'r');
+if (flock($fp, LOCK_EX)) {
+    if (time() - THUMB_CACHE_AGE > filemtime(THUMB_CACHE . 'index.html')) {
         $files = glob(THUMB_CACHE . '*.img.txt');
-        if(is_array($files)&&count($files)>0) {
-            foreach($files as $file) {
-                if(time()-THUMB_CACHE_AGE>filemtime($file)) {
+        if (is_array($files) && count($files) > 0) {
+            foreach ($files as $file) {
+                if (time() - THUMB_CACHE_AGE > filemtime($file)) {
                     unlink($file);
                 }
             }
         }
         touch(THUMB_CACHE . 'index.html');
     }
-    flock($fp,LOCK_UN);
+    flock($fp, LOCK_UN);
 }
 fclose($fp);
 
-if(THUMB_BROWSER_CACHE&&(isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])||isset($_SERVER['HTTP_IF_NONE_MATCH']))) {
-    if($_SERVER['HTTP_IF_MODIFIED_SINCE']==$file_date&&$_SERVER['HTTP_IF_NONE_MATCH']==$file_hash) {
+if (THUMB_BROWSER_CACHE && (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH']))) {
+    if ($_SERVER['HTTP_IF_MODIFIED_SINCE'] == $file_date && $_SERVER['HTTP_IF_NONE_MATCH'] == $file_hash) {
         header($_SERVER['SERVER_PROTOCOL'] . ' 304 Not Modified');
         die();
     }
 }
 
-if(!file_exists($file_name)) {
-    list($w0,$h0,$type) = getimagesize($src);
+if (!file_exists($file_name)) {
+    list($w0, $h0, $type) = getimagesize($src);
     $data = file_get_contents($src);
-    if($ignore&&$type==1) {
-        if(preg_match('/\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)/s',$data)) {
+    if ($ignore && $type == 1) {
+        if (preg_match('/\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)/s', $data)) {
             header('Content-Type: image/gif');
             header('Content-Length: ' . $file_size);
             header('Last-Modified: ' . $file_date);
             header('ETag: ' . $file_hash);
             header('Accept-Ranges: none');
-            if(THUMB_BROWSER_CACHE) {
+            if (THUMB_BROWSER_CACHE) {
                 header('Cache-Control: max-age=604800, must-revalidate');
-                header('Expires: ' . gmdate('D, d M Y H:i:s T',strtotime('+7 days')));
-            }
-            else {
+                header('Expires: ' . gmdate('D, d M Y H:i:s T', strtotime('+7 days')));
+            } else {
                 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
                 header('Expires: ' . gmdate('D, d M Y H:i:s T'));
                 header('Pragma: no-cache');
@@ -121,12 +118,12 @@ if(!file_exists($file_name)) {
         }
     }
     $oi = imagecreatefromstring($data);
-    if(ADJUST_ORIENTATION&&$type==2) {
+    if (ADJUST_ORIENTATION && $type == 2) {
         // I know supressing errors is bad, but calling exif_read_data on invalid
         // or corrupted data returns a fatal error and there's no way to validate
         // the EXIF data before calling the function.
-        $exif = @exif_read_data($src,EXIF);
-        if(isset($exif['Orientation'])) {
+        $exif = @exif_read_data($src, EXIF);
+        if (isset($exif['Orientation'])) {
             $degree = 0;
             $mirror = false;
             switch($exif['Orientation']) {
@@ -159,107 +156,104 @@ if(!file_exists($file_name)) {
                     $w0 ^= $h0 ^= $w0 ^= $h0;
                     break;
             }
-            if($degree>0) {
-                $oi = imagerotate($oi,$degree,0);
+            if ($degree > 0) {
+                $oi = imagerotate($oi, $degree, 0);
             }
-            if($mirror) {
+            if ($mirror) {
                 $nm = $oi;
-                $oi = imagecreatetruecolor($w0,$h0);
-                imagecopyresampled($oi,$nm,0,0,$w0-1,0,$w0,$h0,-$w0,$h0);
+                $oi = imagecreatetruecolor($w0, $h0);
+                imagecopyresampled($oi, $nm, 0, 0, $w0 - 1, 0, $w0, $h0, -$w0, $h0);
                 imagedestroy($nm);
             }
         }
     }
-    list($w,$h) = explode('x',str_replace('<','',$size));
-    $w = ($w!='') ? floor(max(8,min(1500,$w))) : '';
-    $h = ($h!='') ? floor(max(8,min(1500,$h))) : '';
-    if(strstr($size,'<')) {
+    list($w,$h) = explode('x', str_replace('<', '', $size));
+    $w = ($w != '') ? floor(max(8, min(1500, $w))) : '';
+    $h = ($h != '') ? floor(max(8, min(1500, $h))) : '';
+    if (strstr($size, '<')) {
         $h = $w;
         $crop = 0;
         $trim = 1;
-    }
-    elseif(!strstr($size,'x')) {
+    } elseif (!strstr($size, 'x')) {
         $h = $w;
-    }
-    elseif($w==''||$h=='') {
+    } elseif ($w == '' || $h == '') {
         $crop = 0;
         $trim = 1;
     }
-    $trim_w = ($trim) ? 1 : ($w=='') ? 1 : 0;
-    $trim_h = ($trim) ? 1 : ($h=='') ? 1 : 0;
-    if($crop) {
-        $w1 = (($w0/$h0)>($w/$h)) ? floor($w0*$h/$h0) : $w;
-        $h1 = (($w0/$h0)<($w/$h)) ? floor($h0*$w/$w0) : $h;
-        if(!$zoom) {
-            if($h0<$h||$w0<$w) {
+    $trim_w = ($trim) ? 1 : ($w == '') ? 1 : 0;
+    $trim_h = ($trim) ? 1 : ($h == '') ? 1 : 0;
+    if ($crop) {
+        $w1 = (($w0 / $h0) > ($w / $h)) ? floor($w0 * $h / $h0) : $w;
+        $h1 = (($w0 / $h0) < ($w / $h)) ? floor($h0 * $w / $w0) : $h;
+        if (!$zoom) {
+            if ($h0 < $h || $w0 < $w) {
                 $w1 = $w0;
                 $h1 = $h0;
             }
         }
-    }
-    else {
-        $w = ($w=='') ? ($w0*$h)/$h0 : $w;
-        $h = ($h=='') ? ($h0*$w)/$w0 : $h;
-        $w1 = (($w0/$h0)<($w/$h)) ? floor($w0*$h/$h0) : floor($w);
-        $h1 = (($w0/$h0)>($w/$h)) ? floor($h0*$w/$w0) : floor($h);
+    } else {
+        $w = ($w == '') ? ($w0 * $h) / $h0 : $w;
+        $h = ($h == '') ? ($h0 * $w) / $w0 : $h;
+        $w1 = (($w0 / $h0) < ($w / $h)) ? floor($w0 * $h / $h0) : floor($w);
+        $h1 = (($w0 / $h0) > ($w / $h)) ? floor($h0 * $w / $w0) : floor($h);
         $w = floor($w);
         $h = floor($h);
-        if(!$zoom) {
-            if($h0<$h&&$w0<$w) {
+        if (!$zoom) {
+            if ($h0 < $h && $w0 < $w) {
                 $w1 = $w0;
                 $h1 = $h0;
             }
         }
     }
-    $w = ($trim_w) ? (($w0/$h0)>($w/$h)) ? min($w,$w1) : $w1 : $w;
-    $h = ($trim_h) ? (($w0/$h0)<($w/$h)) ? min($h,$h1) : $h1 : $h;
-    if($sharpen) {
+    $w = ($trim_w) ? (($w0 / $h0) > ($w / $h)) ? min($w, $w1) : $w1 : $w;
+    $h = ($trim_h) ? (($w0 / $h0) < ($w / $h)) ? min($h, $h1) : $h1 : $h;
+    if ($sharpen) {
         $matrix = array (
-            array(-1,-1,-1),
-            array(-1,SHARPEN_MAX-($sharpen*(SHARPEN_MAX-SHARPEN_MIN))/100,-1),
-            array(-1,-1,-1));
-        $divisor = array_sum(array_map('array_sum',$matrix));
+            array(-1, -1, -1),
+            array(-1, SHARPEN_MAX - ($sharpen * (SHARPEN_MAX - SHARPEN_MIN)) / 100, -1),
+            array(-1, -1, -1));
+        $divisor = array_sum(array_map('array_sum', $matrix));
     }
-    $x = strpos($align,'l')!==false ? 0 : (strpos($align,'r')!==false ? $w-$w1 : ($w-$w1)/2);
-    $y = strpos($align,'t')!==false ? 0 : (strpos($align,'b')!==false ? $h-$h1 : ($h-$h1)/2);
-    $im = imagecreatetruecolor($w,$h);
-    $bg = imagecolorallocate($im,255,255,255);
-    imagefill($im,0,0,$bg);
+    $x = strpos($align, 'l') !== false ? 0 : (strpos($align, 'r') !== false ? $w - $w1 : ($w - $w1) / 2);
+    $y = strpos($align, 't') !== false ? 0 : (strpos($align, 'b') !== false ? $h - $h1 : ($h - $h1) / 2);
+    $im = imagecreatetruecolor($w, $h);
+    $bg = imagecolorallocate($im, 255, 255, 255);
+    imagefill($im, 0, 0, $bg);
     switch($type) {
         case 1:
-            imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
-            if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
-                imageconvolution($im,$matrix,$divisor,0);
+            imagecopyresampled($im, $oi, $x, $y, 0, 0, $w1, $h1, $w0, $h0);
+            if ($sharpen && version_compare(PHP_VERSION, '5.1.0', '>=')) {
+                imageconvolution($im, $matrix, $divisor, 0);
             }
-            if($gray) {
-                imagefilter($im,IMG_FILTER_GRAYSCALE);
+            if ($gray) {
+                imagefilter($im, IMG_FILTER_GRAYSCALE);
             }
-            imagegif($im,$file_name);
+            imagegif($im, $file_name);
             break;
         case 2:
-            imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
-            if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
-                imageconvolution($im,$matrix,$divisor,0);
+            imagecopyresampled($im, $oi, $x, $y, 0, 0, $w1, $h1, $w0, $h0);
+            if ($sharpen && version_compare(PHP_VERSION, '5.1.0', '>=')) {
+                imageconvolution($im, $matrix, $divisor, 0);
             }
-            if($gray) {
-                imagefilter($im,IMG_FILTER_GRAYSCALE);
+            if ($gray) {
+                imagefilter($im, IMG_FILTER_GRAYSCALE);
             }
-            imagejpeg($im,$file_name,100);
+            imagejpeg($im, $file_name, 100);
             break;
         case 3:
-            imagefill($im,0,0,imagecolorallocatealpha($im,0,0,0,127));
-            imagesavealpha($im,true);
-            imagealphablending($im,false);
-            imagecopyresampled($im,$oi,$x,$y,0,0,$w1,$h1,$w0,$h0);
-            if($sharpen&&version_compare(PHP_VERSION,'5.1.0','>=')) {
-                $fix = imagecolorat($im,0,0);
-                imageconvolution($im,$matrix,$divisor,0);
-                imagesetpixel($im,0,0,$fix);
+            imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
+            imagesavealpha($im, true);
+            imagealphablending($im, false);
+            imagecopyresampled($im, $oi, $x, $y, 0, 0, $w1, $h1, $w0, $h0);
+            if ($sharpen && version_compare(PHP_VERSION, '5.1.0', '>=')) {
+                $fix = imagecolorat($im, 0, 0);
+                imageconvolution($im, $matrix, $divisor, 0);
+                imagesetpixel($im, 0, 0, $fix);
             }
-            if($gray) {
-                imagefilter($im,IMG_FILTER_GRAYSCALE);
+            if ($gray) {
+                imagefilter($im, IMG_FILTER_GRAYSCALE);
             }
-            imagepng($im,$file_name);
+            imagepng($im, $file_name);
             break;
     }
     imagedestroy($im);
@@ -271,11 +265,10 @@ header('Content-Length: ' . filesize($file_name));
 header('Last-Modified: ' . $file_date);
 header('ETag: ' . $file_hash);
 header('Accept-Ranges: none');
-if(THUMB_BROWSER_CACHE) {
+if (THUMB_BROWSER_CACHE) {
     header('Cache-Control: max-age=604800, must-revalidate');
-    header('Expires: ' . gmdate('D, d M Y H:i:s T',strtotime('+7 days')));
-}
-else {
+    header('Expires: ' . gmdate('D, d M Y H:i:s T', strtotime('+7 days')));
+} else {
     header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
     header('Expires: ' . gmdate('D, d M Y H:i:s T'));
     header('Pragma: no-cache');
