@@ -2,7 +2,7 @@
 
 /*
 Title:      Thumb.php
-URL:        http://github.com/jamiebicknell/Thumb.php
+URL:        http://github.com/jamiebicknell/Thumb
 Author:     Jamie Bicknell
 Twitter:    @jamiebicknell
 */

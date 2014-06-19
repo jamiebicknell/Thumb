@@ -1,6 +1,6 @@
-# Thumb.php
+# Thumb
 
-A simple, local image only, thumbnail generation script with a file based cache and optional browser based cache.
+A simple, local image only, thumbnail generation script written in PHP with a file based cache and optional browser based cache.
 
 ## Example Usage
 
@@ -114,4 +114,4 @@ More information, and an in depth analysis of EXIF Orientation can be found [in 
 
 ##License
 
-Thumb.php is licensed under the [MIT license](http://opensource.org/licenses/MIT), see [LICENSE.md](https://github.com/jamiebicknell/Thumb.php/blob/master/LICENSE.md) for details.
+Thumb.php is licensed under the [MIT license](http://opensource.org/licenses/MIT), see [LICENSE.md](https://github.com/jamiebicknell/Thumb/blob/master/LICENSE.md) for details.

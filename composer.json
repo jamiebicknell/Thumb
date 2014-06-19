@@ -1,12 +1,12 @@
 {
-    "name": "jamiebicknell/Thumb.php",
-    "description": "A simple, local image only, thumbnail generation script",
+    "name": "jamiebicknell/Thumb",
+    "description": "A simple, local image only, thumbnail generation script written in PHP",
     "keywords": [
         "thumbnail",
         "php",
         "gd"
     ],
-    "homepage": "http://github.com/jamiebicknell/Thumb.php",
+    "homepage": "http://github.com/jamiebicknell/Thumb",
     "license": "MIT",
     "authors": [
         {
