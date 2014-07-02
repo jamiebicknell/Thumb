@@ -61,7 +61,7 @@ if (!in_array(strtolower(substr(strrchr($src, '.'), 1)), array('gif', 'jpg', 'jp
     die('File is not an image');
 }
 
-$file_salt = 'v1.0.0';
+$file_salt = 'v1.0.1';
 $file_size = filesize($src);
 $file_time = filemtime($src);
 $file_date = gmdate('D, d M Y H:i:s T', $file_time);
@@ -126,7 +126,7 @@ if (!file_exists($file_name)) {
         if (isset($exif['Orientation'])) {
             $degree = 0;
             $mirror = false;
-            switch($exif['Orientation']) {
+            switch ($exif['Orientation']) {
                 case 2:
                     $mirror = true;
                     break;
@@ -219,7 +219,7 @@ if (!file_exists($file_name)) {
     $im = imagecreatetruecolor($w, $h);
     $bg = imagecolorallocate($im, 255, 255, 255);
     imagefill($im, 0, 0, $bg);
-    switch($type) {
+    switch ($type) {
         case 1:
             imagecopyresampled($im, $oi, $x, $y, 0, 0, $w1, $h1, $w0, $h0);
             if ($sharpen && version_compare(PHP_VERSION, '5.1.0', '>=')) {
