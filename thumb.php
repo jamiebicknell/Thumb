@@ -61,7 +61,7 @@ if (!in_array(strtolower(substr(strrchr($src, '.'), 1)), array('gif', 'jpg', 'jp
     die('File is not an image');
 }
 
-$file_salt = 'v1.0.1';
+$file_salt = 'v1.0.2';
 $file_size = filesize($src);
 $file_time = filemtime($src);
 $file_date = gmdate('D, d M Y H:i:s T', $file_time);
@@ -72,22 +72,23 @@ $file_name = THUMB_CACHE . $file_hash . '.img.txt';
 if (!file_exists(THUMB_CACHE . 'index.html')) {
     touch(THUMB_CACHE . 'index.html');
 }
-$fp = fopen(THUMB_CACHE . 'index.html', 'r');
-if (flock($fp, LOCK_EX)) {
-    if (time() - THUMB_CACHE_AGE > filemtime(THUMB_CACHE . 'index.html')) {
-        $files = glob(THUMB_CACHE . '*.img.txt');
-        if (is_array($files) && count($files) > 0) {
-            foreach ($files as $file) {
-                if (time() - THUMB_CACHE_AGE > filemtime($file)) {
-                    unlink($file);
+if (($fp = fopen(THUMB_CACHE . 'index.html', 'r')) !== false) {
+    if (flock($fp, LOCK_EX)) {
+        if (time() - THUMB_CACHE_AGE > filemtime(THUMB_CACHE . 'index.html')) {
+            $files = glob(THUMB_CACHE . '*.img.txt');
+            if (is_array($files) && count($files) > 0) {
+                foreach ($files as $file) {
+                    if (time() - THUMB_CACHE_AGE > filemtime($file)) {
+                        unlink($file);
+                    }
                 }
             }
+            touch(THUMB_CACHE . 'index.html');
         }
-        touch(THUMB_CACHE . 'index.html');
+        flock($fp, LOCK_UN);
     }
-    flock($fp, LOCK_UN);
+    fclose($fp);
 }
-fclose($fp);
 
 if (THUMB_BROWSER_CACHE && (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH']))) {
     if ($_SERVER['HTTP_IF_MODIFIED_SINCE'] == $file_date && $_SERVER['HTTP_IF_NONE_MATCH'] == $file_hash) {
