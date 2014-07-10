@@ -61,13 +61,14 @@ if (!in_array(strtolower(substr(strrchr($src, '.'), 1)), array('gif', 'jpg', 'jp
     die('File is not an image');
 }
 
-$file_salt = 'v1.0.2';
+$file_salt = 'v1.0.3';
 $file_size = filesize($src);
 $file_time = filemtime($src);
 $file_date = gmdate('D, d M Y H:i:s T', $file_time);
 $file_type = strtolower(substr(strrchr($src, '.'), 1));
 $file_hash = md5($file_salt . ($src.$size.$crop.$trim.$zoom.$align.$sharpen.$gray.$ignore) . $file_time);
-$file_name = THUMB_CACHE . $file_hash . '.img.txt';
+$file_temp = THUMB_CACHE . $file_hash . '.img.txt';
+$file_name = basename(substr($src, 0, strrpos($src, '.')) . strtolower(strrchr($src, '.')));
 
 if (!file_exists(THUMB_CACHE . 'index.html')) {
     touch(THUMB_CACHE . 'index.html');
@@ -97,13 +98,14 @@ if (THUMB_BROWSER_CACHE && (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($
     }
 }
 
-if (!file_exists($file_name)) {
+if (!file_exists($file_temp)) {
     list($w0, $h0, $type) = getimagesize($src);
     $data = file_get_contents($src);
     if ($ignore && $type == 1) {
         if (preg_match('/\x00\x21\xF9\x04.{4}\x00(\x2C|\x21)/s', $data)) {
             header('Content-Type: image/gif');
             header('Content-Length: ' . $file_size);
+            header('Content-Disposition: inline; filename="' . $file_name . '"');
             header('Last-Modified: ' . $file_date);
             header('ETag: ' . $file_hash);
             header('Accept-Ranges: none');
@@ -229,7 +231,7 @@ if (!file_exists($file_name)) {
             if ($gray) {
                 imagefilter($im, IMG_FILTER_GRAYSCALE);
             }
-            imagegif($im, $file_name);
+            imagegif($im, $file_temp);
             break;
         case 2:
             imagecopyresampled($im, $oi, $x, $y, 0, 0, $w1, $h1, $w0, $h0);
@@ -239,7 +241,7 @@ if (!file_exists($file_name)) {
             if ($gray) {
                 imagefilter($im, IMG_FILTER_GRAYSCALE);
             }
-            imagejpeg($im, $file_name, 100);
+            imagejpeg($im, $file_temp, 100);
             break;
         case 3:
             imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
@@ -254,7 +256,7 @@ if (!file_exists($file_name)) {
             if ($gray) {
                 imagefilter($im, IMG_FILTER_GRAYSCALE);
             }
-            imagepng($im, $file_name);
+            imagepng($im, $file_temp);
             break;
     }
     imagedestroy($im);
@@ -262,7 +264,8 @@ if (!file_exists($file_name)) {
 }
 
 header('Content-Type: image/' . $file_type);
-header('Content-Length: ' . filesize($file_name));
+header('Content-Length: ' . filesize($file_temp));
+header('Content-Disposition: inline; filename="' . $file_name . '"');
 header('Last-Modified: ' . $file_date);
 header('ETag: ' . $file_hash);
 header('Accept-Ranges: none');
@@ -275,4 +278,4 @@ if (THUMB_BROWSER_CACHE) {
     header('Pragma: no-cache');
 }
 
-readfile($file_name);
+readfile($file_temp);
