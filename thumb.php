@@ -180,6 +180,8 @@ if (!file_exists($file_temp)) {
     } elseif (!strstr($size, 'x')) {
         $h = $w;
     } elseif ($w == '' || $h == '') {
+        $w = ($w == '') ? ($w0 * $h) / $h0 : $w;
+        $h = ($h == '') ? ($h0 * $w) / $w0 : $h;
         $crop = 0;
         $trim = 1;
     }
@@ -195,8 +197,6 @@ if (!file_exists($file_temp)) {
             }
         }
     } else {
-        $w = ($w == '') ? ($w0 * $h) / $h0 : $w;
-        $h = ($h == '') ? ($h0 * $w) / $w0 : $h;
         $w1 = (($w0 / $h0) < ($w / $h)) ? floor($w0 * $h / $h0) : floor($w);
         $h1 = (($w0 / $h0) > ($w / $h)) ? floor($h0 * $w / $w0) : floor($h);
         $w = floor($w);
