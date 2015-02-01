@@ -170,7 +170,7 @@ if (!file_exists($file_temp)) {
             }
         }
     }
-    list($w,$h) = explode('x', str_replace('<', '', $size));
+    list($w,$h) = explode('x', str_replace('<', '', $size) . 'x');
     $w = ($w != '') ? floor(max(8, min(1500, $w))) : '';
     $h = ($h != '') ? floor(max(8, min(1500, $h))) : '';
     if (strstr($size, '<')) {
