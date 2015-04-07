@@ -23,7 +23,7 @@ Firstly, make sure your cache directory is writable, then access the script like
         <td>src</td>
         <td>./images/photo.jpg</td>
         <td></td>
-        <td>Absolute or relative path to the source image, no URLs allowed</td>
+        <td>Absolute path, relative path, or local URL to the source image. Remote URLs are not allowed</td>
     </tr>
     <tr>
         <td>size</td>
