@@ -13,6 +13,7 @@ define('THUMB_BROWSER_CACHE',   true);          // Browser cache true or false
 define('SHARPEN_MIN',           12);            // Minimum sharpen value
 define('SHARPEN_MAX',           28);            // Maximum sharpen value
 define('ADJUST_ORIENTATION',    true);          // Auto adjust orientation for JPEG true or false
+define('JPEG_QUALITY',          100);           // Quality of generated JPEGs (0 - 100; 100 being best)
 
 $src = isset($_GET['src']) ? $_GET['src'] : false;
 $size = isset($_GET['size']) ? str_replace(array('<', 'x'), '', $_GET['size']) != '' ? $_GET['size'] : 100 : 100;
@@ -61,7 +62,7 @@ if (!in_array(strtolower(substr(strrchr($src, '.'), 1)), array('gif', 'jpg', 'jp
     die('File is not an image');
 }
 
-$file_salt = 'v1.0.4';
+$file_salt = 'v1.0.5';
 $file_size = filesize($src);
 $file_time = filemtime($src);
 $file_date = gmdate('D, d M Y H:i:s T', $file_time);
@@ -241,7 +242,7 @@ if (!file_exists($file_temp)) {
             if ($gray) {
                 imagefilter($im, IMG_FILTER_GRAYSCALE);
             }
-            imagejpeg($im, $file_temp, 100);
+            imagejpeg($im, $file_temp, JPEG_QUALITY);
             break;
         case 3:
             imagefill($im, 0, 0, imagecolorallocatealpha($im, 0, 0, 0, 127));
