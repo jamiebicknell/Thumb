@@ -122,7 +122,7 @@ if (!file_exists($file_temp)) {
         }
     }
     $oi = imagecreatefromstring($data);
-    if (ADJUST_ORIENTATION && $type == 2) {
+    if (function_exists('exif_read_data') && ADJUST_ORIENTATION && $type == 2) {
         // I know supressing errors is bad, but calling exif_read_data on invalid
         // or corrupted data returns a fatal error and there's no way to validate
         // the EXIF data before calling the function.
